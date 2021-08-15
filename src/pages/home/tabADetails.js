@@ -21,7 +21,7 @@ export function TabADetails({
     if (adata?.id === -1) todoAdd(adata);
     else todoEdit(adata);
 
-    // navigation.goBack();
+    navigation.goBack();
   };
 
   const onDelete = () => {
