@@ -1,12 +1,33 @@
 import { CheckBox, Input } from "react-native-elements";
-import React, { useEffect, useState } from "react";
+import { CustomDateTimePicker, CustomHeader } from "../../components";
+import React, { useState } from "react";
 import { SafeAreaView, StatusBar, View } from "react-native";
+import { todoAdd, todoDelete, todoEdit } from "../../redux/actions";
 
-import { CustomHeader } from "../../components";
+import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
 
-export function TabADetails({ params, navigation, route }) {
+export function TabADetails({
+  params,
+  navigation,
+  route,
+  todoAdd,
+  todoEdit,
+  todoDelete,
+}) {
   const [adata, setAData] = useState(route?.params?.data);
+
+  const onSave = () => {
+    if (adata?.id === -1) todoAdd(adata);
+    else todoEdit(adata);
+
+    // navigation.goBack();
+  };
+
+  const onDelete = () => {
+    todoDelete(adata?.id);
+    navigation?.goBack();
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4b78ec" }}>
@@ -18,12 +39,8 @@ export function TabADetails({ params, navigation, route }) {
         color="white"
         title={route?.name}
         navigation={navigation}
-        onSave={() => {
-          alert("SAVE");
-        }}
-        onDelete={() => {
-          alert("DELETE");
-        }}
+        onSave={() => onSave()}
+        onDelete={() => onDelete()}
         data={adata}
       />
       <View style={{}}>
@@ -41,14 +58,20 @@ export function TabADetails({ params, navigation, route }) {
         >
           <Input
             placeholder="Title"
-            leftIcon={{ type: "MaterialCommunityIcons", name: "title" }}
+            leftIcon={{
+              type: "MaterialCommunityIcons",
+              name: "title",
+              size: 18,
+            }}
             value={adata?.title}
-            onChangeText={(value) => setAData({ ...adata, title: value })}
+            onChangeText={(value) => {
+              setAData({ ...adata, title: value });
+            }}
           />
 
           <Input
             placeholder="Tag"
-            leftIcon={{ type: "MaterialCommunityIcons", name: "tag" }}
+            leftIcon={{ type: "MaterialCommunityIcons", name: "tag", size: 18 }}
             value={adata?.tag}
             onChangeText={(value) => setAData({ ...adata, tag: value })}
           />
@@ -57,26 +80,27 @@ export function TabADetails({ params, navigation, route }) {
             placeholder="Note"
             multiline={true}
             numberOfLines={3}
-            leftIcon={{ type: "MaterialCommunityIcons", name: "note" }}
+            leftIcon={{
+              type: "MaterialCommunityIcons",
+              name: "note",
+              size: 18,
+            }}
             value={adata?.note}
             onChangeText={(value) => setAData({ ...adata, note: value })}
           />
 
           <Input
             placeholder="Location"
-            leftIcon={{ type: "MaterialIcons", name: "push-pin" }}
+            leftIcon={{ type: "MaterialIcons", name: "push-pin", size: 18 }}
             value={adata?.location}
             onChangeText={(value) => setAData({ ...adata, location: value })}
           />
 
-          <Input
-            placeholder="Time"
-            leftIcon={{
-              type: "MaterialCommunityIcons",
-              name: "calendar-today",
+          <CustomDateTimePicker
+            value={adata?.time ? new Date(adata?.time) : new Date()}
+            onChange={(value) => {
+              setAData({ ...adata, time: value.toISOString() });
             }}
-            value={adata?.time?.toString()}
-            onChangeText={(value) => setAData({ ...adata, time: value })}
           />
 
           <CheckBox
@@ -93,7 +117,10 @@ export function TabADetails({ params, navigation, route }) {
 }
 
 const mapStateToProps = (state) => {
-  return { userInfo: state?.userInfo };
+  return { userInfo: state?.userInfo, todo: state?.todo };
 };
 
-export default connect(mapStateToProps)(TabADetails);
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators({ todoAdd, todoEdit, todoDelete }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(TabADetails);

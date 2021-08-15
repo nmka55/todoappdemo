@@ -135,7 +135,7 @@ export default class CustomHeader extends Component {
           />
         )}
 
-        {this?.props?.deleteButton && this?.props?.data?.id > 0 && (
+        {this?.props?.deleteButton && this?.props?.data?.id > -1 && (
           <DeleteButton
             color={this?.props?.color}
             navigation={this?.props?.navigation}

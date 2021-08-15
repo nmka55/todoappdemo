@@ -13,6 +13,7 @@ import { Button } from "react-native-elements";
 import Icon from "react-native-vector-icons/Octicons";
 import { bindActionCreators } from "redux";
 import { connect } from "react-redux";
+import moment from "moment";
 import styled from "styled-components/native";
 import { userLogout } from "../../redux/actions";
 
@@ -30,81 +31,83 @@ const SpecTitle = styled.Text`
   color: gray;
 `;
 
-function TabA({ navigation, route }) {
-  const [listData, setListData] = useState([
-    {
-      id: 1,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 2,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 3,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 4,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 5,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 6,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 7,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-    {
-      id: 8,
-      tag: "#personal",
-      title: "Do shopping, buy eggs",
-      location: "Emart Supermarket",
-      time: new Date(),
-      isDone: true,
-      color: "pink",
-    },
-  ]);
+function TabA({ navigation, route, todo }) {
+  // const [listData, setListData] = useState([
+  //   {
+  //     id: 1,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 2,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 3,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 4,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 5,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 6,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 7,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  //   {
+  //     id: 8,
+  //     tag: "#personal",
+  //     title: "Do shopping, buy eggs",
+  //     location: "Emart Supermarket",
+  //     time: new moment(),
+  //     isDone: true,
+  //     color: "pink",
+  //   },
+  // ]);
+  const [listData, setListData] = useState(todo?.list);
+
   const [tagData, setTagData] = useState([
     { title: "#personal", color: "pink" },
     { title: "#work", color: "lightblue" },
@@ -112,6 +115,46 @@ function TabA({ navigation, route }) {
     { title: "#houseWork", color: "cyan" },
     { title: "#birthdayPrep", color: "lightgreen" },
   ]);
+  const [totalCount, setTotalCount] = useState({});
+
+  useEffect(() => {
+    let isOngoing = route?.name?.toUpperCase() === "ONGOING";
+    let tempListData = [];
+    if (isOngoing) tempListData = todo?.list?.filter((x) => !x?.isDone);
+    else tempListData = todo?.list?.filter((x) => x?.isDone);
+    setListData(tempListData);
+
+    let uniqueTags = todo?.list?.map((x) => {
+      return x?.tag;
+    });
+    uniqueTags = [...new Set(uniqueTags)];
+
+    let tempTags = uniqueTags?.map((x) => {
+      return {
+        title: x,
+        color: "#" + (((1 << 24) * Math.random()) | 0).toString(16),
+      };
+    });
+    setTagData(tempTags);
+
+    let overdue = 0,
+      open = 0,
+      duetoday = 0;
+    let count = todo?.list?.length;
+
+    todo?.list?.forEach((x) => {
+      if (!x?.isDone) open++;
+      if (moment(x?.time).isSame(moment(), "day") && !x?.isDone) duetoday++;
+      if (moment(x?.time).isBefore(moment(), "day") && !x?.isDone) overdue++;
+    });
+
+    setTotalCount({
+      overdue,
+      count,
+      open,
+      duetoday,
+    });
+  }, [todo?.list]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#4b78ec" }}>
@@ -137,22 +180,22 @@ function TabA({ navigation, route }) {
           }}
         >
           <SpecView>
-            <SpecValue>80</SpecValue>
+            <SpecValue>{totalCount?.overdue}</SpecValue>
             <SpecTitle>overdue</SpecTitle>
           </SpecView>
 
           <SpecView>
-            <SpecValue>123</SpecValue>
+            <SpecValue>{totalCount?.count}</SpecValue>
             <SpecTitle>to do</SpecTitle>
           </SpecView>
 
           <SpecView>
-            <SpecValue>72</SpecValue>
+            <SpecValue>{totalCount?.open}</SpecValue>
             <SpecTitle>open</SpecTitle>
           </SpecView>
 
           <SpecView>
-            <SpecValue>51</SpecValue>
+            <SpecValue>{totalCount?.duetoday}</SpecValue>
             <SpecTitle>due today</SpecTitle>
           </SpecView>
         </View>
@@ -166,7 +209,7 @@ function TabA({ navigation, route }) {
         <FlatList
           horizontal={true}
           style={{ width: "100%" }}
-          data={tagData}
+          data={tagData ?? []}
           keyExtractor={(item) => item?.title}
           renderItem={({ item }) => {
             return (
@@ -228,7 +271,11 @@ function TabA({ navigation, route }) {
           data={listData}
           keyExtractor={(item) => item?.id}
           renderItem={({ item }) => (
-            <CustomListItem navigation={navigation} data={item} />
+            <CustomListItem
+              navigation={navigation}
+              data={item}
+              tagData={tagData}
+            />
           )}
         />
       </View>
@@ -237,7 +284,8 @@ function TabA({ navigation, route }) {
 }
 
 const mapStateToProps = (state) => {
-  return { user: state?.user };
+  console.log("TAB A STATE:", state?.todo);
+  return { user: state?.user, todo: state?.todo };
 };
 
 const mapDispatchToProps = (dispatch) =>

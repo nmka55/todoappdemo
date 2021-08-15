@@ -18,31 +18,20 @@ export function userLogout() {
   };
 }
 
-export function todoAdd(id, tag, title, location, time, status, color) {
+export function todoAdd(data) {
   return (dispatch) => {
     dispatch({
       type: TODO_ADD,
-      todo: [...todo, { id, tag, title, location, time, status, color }],
+      data,
     });
   };
 }
 
-export function todoEdit(id, tag, title, location, time, status, color) {
+export function todoEdit(data) {
   return (dispatch) => {
     dispatch({
       type: TODO_EDIT,
-      todo: todo.map((x) => {
-        if (x?.id === id) {
-          x = {
-            tag,
-            title,
-            location,
-            time,
-            status,
-            color,
-          };
-        }
-      }),
+      data: data,
     });
   };
 }
@@ -51,7 +40,7 @@ export function todoDelete(id) {
   return (dispatch) => {
     dispatch({
       type: TODO_DELETE,
-      todo: todo.filter((x) => x?.id !== id),
+      data: id,
     });
   };
 }

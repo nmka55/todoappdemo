@@ -21,6 +21,7 @@ export default class CustomListItem extends Component {
   static propTypes = {
     navigation: PropTypes.object,
     data: PropTypes.object,
+    tagData: PropTypes.array,
   };
 
   render() {
@@ -61,7 +62,13 @@ export default class CustomListItem extends Component {
             }}
           >
             <View
-              style={{ width: "1.5%", height: "100%", backgroundColor: "pink" }}
+              style={{
+                width: "1.5%",
+                height: "100%",
+                backgroundColor: this?.props?.tagData?.find(
+                  (x) => x?.title === this?.props?.data?.tag
+                )?.color,
+              }}
             />
             <View style={{ backgroundColor: "white", padding: 20, flex: 1 }}>
               <View
